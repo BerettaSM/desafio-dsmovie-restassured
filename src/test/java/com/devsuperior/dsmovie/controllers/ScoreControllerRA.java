@@ -67,6 +67,14 @@ public class ScoreControllerRA {
 	
 	@Test
 	public void saveScoreShouldReturnUnprocessableEntityWhenMissingMovieId() throws Exception {
+        scoresRequestSpec
+            .when()
+                .body(
+                    createJsonBody(
+                        "score", 0))
+                .put(SCORES_ENDPOINT)
+            .then()
+                .statusCode(HttpStatus.UNPROCESSABLE_CONTENT.value());
 	}
 	
 	@Test
