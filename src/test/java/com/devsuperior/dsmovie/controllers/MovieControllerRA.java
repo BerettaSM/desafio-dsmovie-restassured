@@ -27,6 +27,7 @@ public class MovieControllerRA {
 
     private RequestSpecification moviesRequestSpec;
     private RequestSpecification moviesAsAdminRequestSpec;
+    private RequestSpecification moviesAsAdminWithInvalidTokenRequestSpec;
     private RequestSpecification moviesAsClientRequestSpec;
     
     private long existingMovieId, nonExistingMovieId;
@@ -34,6 +35,7 @@ public class MovieControllerRA {
     private static String adminUsername;
     private static String adminPassword;
     private static String adminToken;
+    private static String invalidAdminToken;
 
     private static String clientUsername;
     private static String clientPassword;
@@ -46,6 +48,7 @@ public class MovieControllerRA {
         adminUsername = "maria@gmail.com";
         adminPassword = "123456";
         adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+        invalidAdminToken = adminToken + "abc123";
 
         clientUsername = "alex@gmail.com";
         clientPassword = "123456";
@@ -67,6 +70,11 @@ public class MovieControllerRA {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .header("Authorization", "Bearer " + clientToken);
+
+        moviesAsAdminWithInvalidTokenRequestSpec = given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .header("Authorization", "Bearer " + invalidAdminToken);
 
         existingMovieId = 1L;
         nonExistingMovieId = 99L;
@@ -144,6 +152,17 @@ public class MovieControllerRA {
 	
 	@Test
 	public void insertShouldReturnUnauthorizedWhenInvalidToken() throws Exception {
+        moviesAsAdminWithInvalidTokenRequestSpec
+            .when()
+                .body(
+                    createJsonBody(
+                        "title", "Some bogus title",
+                        "score", 0.0,
+                        "count", 0,
+                        "image", "https://bogusurl.com/"))
+                .post(MOVIES_ENDPOINT)
+            .then()
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
     private JSONObject createJsonBody(Object... keyValuePairs) {
