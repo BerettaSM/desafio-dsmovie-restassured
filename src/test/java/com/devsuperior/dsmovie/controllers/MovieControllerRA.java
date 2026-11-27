@@ -11,51 +11,54 @@ import org.springframework.http.HttpStatus;
 
 import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 
 public class MovieControllerRA {
+
+    private static final String MOVIES_ENDPOINT = "/movies";
+
+    private RequestSpecification moviesRequestSpec;
     
     private long existingMovieId;
 
     @BeforeEach
     public void setUp() {
+        moviesRequestSpec = given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON);
+
         existingMovieId = 1L;
     }
 	
 	@Test
 	public void findAllShouldReturnOkWhenMovieNoArgumentsGiven() {
-        given()
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-        .when()
-            .get("/movies")
-        .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("content.findAll.size()", greaterThan(0));
+        moviesRequestSpec
+            .when()
+                .get(MOVIES_ENDPOINT)
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content.findAll.size()", greaterThan(0));
 	}
 	
 	@Test
 	public void findAllShouldReturnPagedMoviesWhenMovieTitleParamIsNotEmpty() {
-        given()
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-        .when()
-            .param("title", "star")
-            .get("/movies")
-        .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("content.findAll.size()", equalTo(3));
+        moviesRequestSpec
+            .when()
+                .param("title", "star")
+                .get(MOVIES_ENDPOINT)
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content.findAll.size()", equalTo(3));
 	}
 	
 	@Test
 	public void findByIdShouldReturnMovieWhenIdExists() {
-        given()
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON)
-        .when()
-            .get("/movies/{id}", existingMovieId)
-        .then()
-            .statusCode(HttpStatus.OK.value())
-            .body("content", not(emptyArray()));
+        moviesRequestSpec
+            .when()
+                .get(MOVIES_ENDPOINT + "/{id}", existingMovieId)
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("content", not(emptyArray()));
 	}
 	
 	@Test
