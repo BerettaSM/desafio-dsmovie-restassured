@@ -78,7 +78,16 @@ public class ScoreControllerRA {
 	}
 	
 	@Test
-	public void saveScoreShouldReturnUnprocessableEntityWhenScoreIsLessThanZero() throws Exception {		
+	public void saveScoreShouldReturnUnprocessableEntityWhenScoreIsLessThanZero() throws Exception {
+        scoresRequestSpec
+            .when()
+                .body(
+                    createJsonBody(
+                        "movieId", existingMovieId,
+                        "score", -1))
+                .put(SCORES_ENDPOINT)
+            .then()
+                .statusCode(HttpStatus.UNPROCESSABLE_CONTENT.value());	
 	}
 
     private JSONObject createJsonBody(Object... keyValuePairs) {
