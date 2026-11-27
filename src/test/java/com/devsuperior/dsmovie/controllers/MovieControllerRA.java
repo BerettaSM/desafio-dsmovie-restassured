@@ -27,12 +27,17 @@ public class MovieControllerRA {
 
     private RequestSpecification moviesRequestSpec;
     private RequestSpecification moviesAsAdminRequestSpec;
+    private RequestSpecification moviesAsClientRequestSpec;
     
     private long existingMovieId, nonExistingMovieId;
 
     private static String adminUsername;
     private static String adminPassword;
     private static String adminToken;
+
+    private static String clientUsername;
+    private static String clientPassword;
+    private static String clientToken;
 
     @BeforeAll
     public static void init() throws JSONException {
@@ -41,6 +46,10 @@ public class MovieControllerRA {
         adminUsername = "maria@gmail.com";
         adminPassword = "123456";
         adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+
+        clientUsername = "alex@gmail.com";
+        clientPassword = "123456";
+        clientToken = TokenUtil.obtainAccessToken(clientUsername, clientPassword);
     }
 
     @BeforeEach
@@ -49,8 +58,15 @@ public class MovieControllerRA {
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON);
         
-        moviesAsAdminRequestSpec = moviesRequestSpec
+        moviesAsAdminRequestSpec = given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
             .header("Authorization", "Bearer " + adminToken);
+
+        moviesAsClientRequestSpec = given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .header("Authorization", "Bearer " + clientToken);
 
         existingMovieId = 1L;
         nonExistingMovieId = 99L;
@@ -113,7 +129,18 @@ public class MovieControllerRA {
 	
 	@Test
 	public void insertShouldReturnForbiddenWhenClientLogged() throws Exception {
-	}
+        moviesAsClientRequestSpec
+            .when()
+                .body(
+                    createJsonBody(
+                        "title", "Some bogus title",
+                        "score", 0.0,
+                        "count", 0,
+                        "image", "https://bogusurl.com/"))
+                .post(MOVIES_ENDPOINT)
+            .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
 	
 	@Test
 	public void insertShouldReturnUnauthorizedWhenInvalidToken() throws Exception {
