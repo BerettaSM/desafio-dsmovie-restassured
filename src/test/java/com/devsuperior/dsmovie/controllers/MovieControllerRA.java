@@ -1,5 +1,6 @@
 package com.devsuperior.dsmovie.controllers;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,16 @@ public class MovieControllerRA {
 	}
 	
 	@Test
-	public void findAllShouldReturnPagedMoviesWhenMovieTitleParamIsNotEmpty() {		
+	public void findAllShouldReturnPagedMoviesWhenMovieTitleParamIsNotEmpty() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+        .when()
+            .param("title", "star")
+            .get("/movies")
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("content.findAll.size()", equalTo(3));
 	}
 	
 	@Test
