@@ -19,7 +19,7 @@ public class MovieControllerRA {
 
     private RequestSpecification moviesRequestSpec;
     
-    private long existingMovieId;
+    private long existingMovieId, nonExistingMovieId;
 
     @BeforeEach
     public void setUp() {
@@ -28,6 +28,7 @@ public class MovieControllerRA {
             .accept(ContentType.JSON);
 
         existingMovieId = 1L;
+        nonExistingMovieId = 99L;
     }
 	
 	@Test
@@ -62,7 +63,12 @@ public class MovieControllerRA {
 	}
 	
 	@Test
-	public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() {	
+	public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() {
+        moviesRequestSpec
+            .when()
+                .get(MOVIES_ENDPOINT + "/{id}", nonExistingMovieId)
+            .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
 	}
 	
 	@Test
