@@ -1,8 +1,11 @@
 package com.devsuperior.dsmovie.controllers;
 
+import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.not;
 import org.json.JSONException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
@@ -10,6 +13,13 @@ import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
 
 public class MovieControllerRA {
+    
+    private long existingMovieId;
+
+    @BeforeEach
+    public void setUp() {
+        existingMovieId = 1L;
+    }
 	
 	@Test
 	public void findAllShouldReturnOkWhenMovieNoArgumentsGiven() {
@@ -37,7 +47,15 @@ public class MovieControllerRA {
 	}
 	
 	@Test
-	public void findByIdShouldReturnMovieWhenIdExists() {		
+	public void findByIdShouldReturnMovieWhenIdExists() {
+        given()
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+        .when()
+            .get("/movies/{id}", existingMovieId)
+        .then()
+            .statusCode(HttpStatus.OK.value())
+            .body("content", not(emptyArray()));
 	}
 	
 	@Test
