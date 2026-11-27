@@ -1,15 +1,12 @@
 package com.devsuperior.dsmovie.controllers;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.JSONException;
-import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import static com.devsuperior.dsmovie.tests.JsonUtil.createJsonBody;
 import com.devsuperior.dsmovie.tests.TokenUtil;
 
 import static io.restassured.RestAssured.baseURI;
@@ -22,9 +19,6 @@ public class ScoreControllerRA {
     private static final String SCORES_ENDPOINT = "/scores";
 
     private RequestSpecification scoresRequestSpec;
-    private RequestSpecification moviesAsAdminRequestSpec;
-    private RequestSpecification moviesAsAdminWithInvalidTokenRequestSpec;
-    private RequestSpecification moviesAsClientRequestSpec;
     
     private long existingMovieId, nonExistingMovieId;
 
@@ -90,14 +84,4 @@ public class ScoreControllerRA {
                 .statusCode(HttpStatus.UNPROCESSABLE_CONTENT.value());	
 	}
 
-    private JSONObject createJsonBody(Object... keyValuePairs) {
-        if (keyValuePairs.length % 2 != 0) {
-            throw new RuntimeException("Key without a value");
-        }
-        Map<String, Object> map = new HashMap<>();
-        for (int i = 0; i < keyValuePairs.length; i += 2) {
-            map.put(String.valueOf(keyValuePairs[i]), keyValuePairs[i + 1]);
-        }
-        return new JSONObject(map);
-    }
 }
